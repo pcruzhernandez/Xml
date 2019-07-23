@@ -1,0 +1,7 @@
+﻿{
+    "branchId":  "4539595f-1397-4633-9228-c038035a141d",
+    "dockerImage":  "mcr.microsoft.com/businesscentral/sandbox",
+    "navVersion":  "14.0.0.0",
+    "navSolution":  "W1",
+    "projectName":  "XmlExamples"
+}    
