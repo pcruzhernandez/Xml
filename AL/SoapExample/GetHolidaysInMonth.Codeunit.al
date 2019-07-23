@@ -9,8 +9,7 @@ codeunit 60103 "Get Holidays in Month"
     begin
         WriteRequestNode(TempRequestMessage, XmlRequest);
         RequestXmlDoc := SoapMgt.CreateSoapRequest(XmlRequest);
-        if not RequestMgt.SendRequest('http://www.holidaywebservice.com/HolidayService_v2/GetHolidaysForMonth', RequestXmlDoc, ResponseXmlDoc) then
-            Error(RequestFailedErr, GetLastErrorText());
+        RequestMgt.SendRequest('http://www.holidaywebservice.com/HolidayService_v2/GetHolidaysForMonth', RequestXmlDoc, ResponseXmlDoc);
     end;
 
     procedure ReadResponse(ResponseXmlDoc: XmlDocument; var TempResponseMessage: Record "Holiday Response"): Boolean
@@ -39,11 +38,6 @@ codeunit 60103 "Get Holidays in Month"
         exit(TempResponseMessage.FindFirst());
     end;
 
-    procedure SetSkipAttributeVerification()
-    begin
-        SkipAttributeVerification := true;
-    end;
-
     local procedure WriteRequestNode(var TempRequestMessage: Record "Country Selection"; var XmlRequest: XmlElement)
     var
         TempBlob: Record TempBlob;
@@ -61,10 +55,4 @@ codeunit 60103 "Get Holidays in Month"
         XmlDoc.GetRoot(XmlRequest);
     end;
 
-    var
-        RequestFailedErr: Label 'Soap Request Failed with error: \%1';
-        ResponseFailedErr: Label 'Soap Response Failed';
-        PingEchoDataTxt: Label 'Hello World', Locked = true;
-        PingResponseMsg: Label 'Ping response in %1';
-        SkipAttributeVerification: Boolean;
 }

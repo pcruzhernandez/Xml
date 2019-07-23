@@ -5,7 +5,7 @@ codeunit 60104 "Holidy Request Mgt"
 
     end;
 
-    procedure SendRequest(SoapAction: Text; var RequestXmlDoc: XmlDocument; var ResponseXmlDoc: XmlDocument): Boolean
+    procedure SendRequest(SoapAction: Text; var RequestXmlDoc: XmlDocument; var ResponseXmlDoc: XmlDocument)
     var
         TempBlob: Record TempBlob;
         OutStr: OutStream;
@@ -13,13 +13,12 @@ codeunit 60104 "Holidy Request Mgt"
     begin
         TempBlob.Blob.CreateOutStream(OutStr);
         RequestXmlDoc.WriteTo(OutStr);
-        if not Post(SoapAction, TempBlob) then exit;
+        Post(SoapAction, TempBlob);
         TempBlob.Blob.CreateInStream(InStr);
         XmlDocument.ReadFrom(InStr, ResponseXmlDoc);
-        exit(true);
     end;
 
-    local procedure Post(SoapAction: Text; var TempBlob: Record TempBlob): Boolean
+    local procedure Post(SoapAction: Text; var TempBlob: Record TempBlob)
     var
         httpWebClient: HttpClient;
         httpWebResponse: HttpResponseMessage;
@@ -28,7 +27,7 @@ codeunit 60104 "Holidy Request Mgt"
         httpWebContentHeaders: HttpHeaders;
         Xml: Text;
     begin
-        if OverWriteWebRequest(TempBlob) then exit(true);
+        if OverWriteWebRequest(TempBlob) then exit;
         Xml := TempBlob.ReadAsText('', TextEncoding::UTF8);
         httpWebContent.WriteFrom(Xml);
         httpWebContent.GetHeaders(httpWebContentHeaders);
@@ -42,9 +41,9 @@ codeunit 60104 "Holidy Request Mgt"
             HttpWebResponse.Content().ReadAs(Xml);
             TempBlob.Init();
             TempBlob.WriteAsText(Xml, TextEncoding::UTF8);
-            exit(true);
+            exit;
         end else
-            exit(false);
+            error(UnableToProcessRequestErr, httpWebResponse.HttpStatusCode);
     end;
 
     local procedure GetSoapServiceUrl(): Text
@@ -65,4 +64,6 @@ codeunit 60104 "Holidy Request Mgt"
 
     end;
 
+    var
+        UnableToProcessRequestErr: Label 'Unable to process request: Error Code = %1';
 }
