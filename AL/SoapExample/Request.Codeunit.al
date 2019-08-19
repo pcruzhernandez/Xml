@@ -27,7 +27,7 @@ codeunit 60104 "Holidy Request Mgt"
         httpWebContentHeaders: HttpHeaders;
         Xml: Text;
     begin
-        if OverWriteWebRequest(TempBlob) then exit;
+        if OverWriteWebRequest(SoapAction, TempBlob) then exit;
         Xml := TempBlob.ReadAsText('', TextEncoding::UTF8);
         httpWebContent.WriteFrom(Xml);
         httpWebContent.GetHeaders(httpWebContentHeaders);
@@ -53,13 +53,13 @@ codeunit 60104 "Holidy Request Mgt"
         exit(SoapConstants.GetUrl());
     end;
 
-    local procedure OverWriteWebRequest(var TempBlob: Record Tempblob) Handled: Boolean
+    local procedure OverWriteWebRequest(SoapAction: Text; var TempBlob: Record Tempblob) Handled: Boolean
     begin
-        OnOverWriteWebRequest(TempBlob, Handled);
+        OnOverWriteWebRequest(SoapAction, TempBlob, Handled);
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnOverWriteWebRequest(var TempBlob: Record Tempblob; var Handled: Boolean)
+    local procedure OnOverWriteWebRequest(SoapAction: Text; var TempBlob: Record Tempblob; var Handled: Boolean)
     begin
 
     end;

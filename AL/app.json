@@ -1,7 +1,7 @@
 {
   "id": "4539595f-1397-4633-9228-c038035a141d",
   "name": "AL Xml Examples",
-  "publisher": "BusinessCentralMVPs",
+  "publisher": "navision.guru",
   "version": "1.0.0.0",
   "brief": "AL Example code to handle Xml files",
   "description": "All AL Code must have accompanied test procedures",

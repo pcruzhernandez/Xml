@@ -3,10 +3,15 @@ codeunit 60108 "Holiday Mock Soap Service"
     EventSubscriberInstance = Manual;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Holidy Request Mgt", 'OnOverWriteWebRequest', '', false, false)]
-    local procedure MockResponse(var TempBlob: Record TempBlob; var Handled: Boolean)
+    local procedure MockResponse(SoapAction: Text; var TempBlob: Record TempBlob; var Handled: Boolean)
     begin
-        TempBlob.WriteAsText(GetResult(), TextEncoding::UTF8);
-        Handled := true;
+        case SoapAction of
+            'http://www.holidaywebservice.com/HolidayService_v2/GetHolidaysForMonth':
+                begin
+                    TempBlob.WriteAsText(GetResult(), TextEncoding::UTF8);
+                    Handled := true;
+                end;
+        end;
     end;
 
     local procedure CatchWebRequst()
