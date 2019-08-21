@@ -1,4 +1,4 @@
-codeunit 60101 "Holidy Soap Mgt."
+codeunit 60101 "Holiday Soap Mgt."
 {
 
     trigger OnRun()

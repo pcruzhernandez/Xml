@@ -2,7 +2,7 @@ codeunit 60103 "Get Holidays in Month"
 {
     procedure PostRequest(var TempRequestMessage: Record "Country Selection") ResponseXmlDoc: XmlDocument;
     var
-        SoapMgt: Codeunit "Holidy Soap Mgt.";
+        SoapMgt: Codeunit "Holiday Soap Mgt.";
         RequestMgt: Codeunit "Holiday Request Mgt";
         RequestXmlDoc: XmlDocument;
         XmlRequest: XmlElement;
