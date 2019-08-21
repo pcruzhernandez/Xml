@@ -1,4 +1,4 @@
-codeunit 60104 "Holidy Request Mgt"
+codeunit 60104 "Holiday Request Mgt"
 {
     trigger OnRun()
     begin

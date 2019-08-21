@@ -2,7 +2,7 @@ codeunit 60108 "Holiday Mock Soap Service"
 {
     EventSubscriberInstance = Manual;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Holidy Request Mgt", 'OnOverWriteWebRequest', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Holiday Request Mgt", 'OnOverWriteWebRequest', '', false, false)]
     local procedure MockResponse(SoapAction: Text; var TempBlob: Record TempBlob; var Handled: Boolean)
     begin
         case SoapAction of
