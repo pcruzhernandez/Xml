@@ -5,7 +5,10 @@
 		},
 		{
 			"path": "WCF"
-		}		
+		},
+		{
+			"path": "Http"
+		}
 	],
 	"settings": {}
 }
