@@ -1,4 +1,3 @@
-// Only enable for internal extension
 codeunit 60133 RequestWindowsAuthentication
 {
     EventSubscriberInstance = Manual;
@@ -23,7 +22,8 @@ codeunit 60133 RequestWindowsAuthentication
     [EventSubscriber(ObjectType::Codeunit, Codeunit::HttpDownloader, 'OnBeforeSendRequest', '', false, false)]
     local procedure SetWindowsAuthentication(var Client: HttpClient)
     begin
-        Client.UseWindowsAuthentication(SetUserName, SetPassword, SetDomain);
+        // Only enable for internal extension
+        //Client.UseWindowsAuthentication(SetUserName, SetPassword, SetDomain);
     end;
 
     var

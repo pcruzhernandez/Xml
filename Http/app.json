@@ -10,7 +10,7 @@
   "help": "https://github.com/businesscentralal/Xml/wiki",
   "url": "https://github.com/businesscentralal/Xml",
   "logo": "",
-  "target": "Internal",
+  "target": "Extension",
   "dependencies": [],
   "screenshots": [],
   "platform": "14.0.0.0",

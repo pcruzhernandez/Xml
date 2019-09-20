@@ -10,12 +10,13 @@ codeunit 60130 HttpDownloader
         exit(DownloadText(Url, 'Get'));
     end;
 
-    procedure DownloadText(Url: text; Method: Text) Response: Text
+    procedure DownloadText(Url: text; Method: Text) ResponseText: Text
     var
-        Content: HttpContent;
+        Response: HttpResponseMessage;
     begin
-        SendRequest(Url, Method, Content);
-        Content.ReadAs(Response);
+        SendRequest(Url, Method, Response);
+        ThrowErrorIfNotSuccess(Response);
+        Response.Content.ReadAs(ResponseText);
     end;
 
     procedure DownloadXml(Url: text) XmlDoc: XmlDocument
@@ -38,6 +39,18 @@ codeunit 60130 HttpDownloader
         Json.ReadFrom(DownloadText(Url, Method));
     end;
 
+    procedure TryDownloadResponse(Url: Text; var Response: HttpResponseMessage): Boolean
+    begin
+        SendRequest(Url, 'Get', Response);
+        exit(Response.IsSuccessStatusCode());
+    end;
+
+    procedure TryDownloadResponse(Url: Text; Method: Text; var Response: HttpResponseMessage): Boolean
+    begin
+        SendRequest(Url, Method, Response);
+        exit(Response.IsSuccessStatusCode());
+    end;
+
     procedure DownloadIntoStream(Url: Text; var ResponseStream: InStream)
     begin
         DownloadIntoStream(Url, 'Get', ResponseStream);
@@ -45,10 +58,11 @@ codeunit 60130 HttpDownloader
 
     procedure DownloadIntoStream(Url: Text; Method: Text; var ResponseStream: InStream)
     var
-        Content: HttpContent;
+        Response: HttpResponseMessage;
     begin
-        SendRequest(Url, Method, Content);
-        Content.ReadAs(ResponseStream);
+        SendRequest(Url, Method, Response);
+        ThrowErrorIfNotSuccess(Response);
+        Response.Content.ReadAs(ResponseStream);
     end;
 
     procedure DownloadIntoBlob(Url: Text; var TempBlob: Record TempBlob)
@@ -58,13 +72,14 @@ codeunit 60130 HttpDownloader
 
     procedure DownloadIntoBlob(Url: Text; Method: Text; var TempBlob: Record TempBlob)
     var
-        Content: HttpContent;
+        Response: HttpResponseMessage;
         ResponseStream: InStream;
         WriteStream: OutStream;
     begin
-        SendRequest(Url, Method, Content);
+        SendRequest(Url, Method, Response);
+        ThrowErrorIfNotSuccess(Response);
         CreateResponseStream(ResponseStream);
-        Content.ReadAs(ResponseStream);
+        Response.Content.ReadAs(ResponseStream);
         TempBlob.Init();
         TempBlob.Blob.CreateOutStream(WriteStream);
         CopyStream(WriteStream, ResponseStream);
@@ -77,21 +92,23 @@ codeunit 60130 HttpDownloader
         DataExch."File Content".CreateInStream(ResponseStream);
     end;
 
-    local procedure SendRequest(Url: text; Method: Text; var Content: HttpContent)
+    local procedure SendRequest(Url: text; Method: Text; var Response: HttpResponseMessage)
     var
         Client: HttpClient;
         Request: HttpRequestMessage;
-        Response: HttpResponseMessage;
         Xml: Text;
     begin
         Request.Method(Method);
         Request.SetRequestUri(Url);
         OnBeforeSendRequest(Client, Request);
         Client.Send(Request, Response);
+        OnAfterGetResponse(Response);
+    end;
+
+    local procedure ThrowErrorIfNotSuccess(var Response: HttpResponseMessage)
+    begin
         if not Response.IsSuccessStatusCode() then
             error('%1:%2', Response.HttpStatusCode(), Response.ReasonPhrase());
-        OnAfterGetResponse(Response);
-        Content := Response.Content;
     end;
 
     [IntegrationEvent(false, false)]

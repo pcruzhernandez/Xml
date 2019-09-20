@@ -3,6 +3,7 @@ codeunit 60139 HttpDownloadTest
     Subtype = Test;
 
     [Test]
+    [HandlerFunctions('HandleDownloadConfirm')]
     procedure "DownloadIcelandicPostCode.SetUpdatedResponseHeader.VerifyContentUpdated"()
     var
         Downloader: Codeunit HttpDownloader;
@@ -23,6 +24,7 @@ codeunit 60139 HttpDownloadTest
     end;
 
     [Test]
+    [HandlerFunctions('HandleDownloadConfirm')]
     procedure "Http.Get.VerifyResponse"()
     var
         Downloader: Codeunit HttpDownloader;
@@ -40,6 +42,7 @@ codeunit 60139 HttpDownloadTest
     end;
 
     [Test]
+    [HandlerFunctions('HandleDownloadConfirm')]
     procedure "Http.Delete.VerifyResponse"()
     var
         Downloader: Codeunit HttpDownloader;
@@ -53,10 +56,11 @@ codeunit 60139 HttpDownloadTest
         // [THEN] VerifyResponse 
         Json.AsObject().Get('url', Json);
         if Json.AsValue().AsText() <> Url then
-            error('Unable to verify Get response');
+            error('Unable to verify Delete response');
     end;
 
     [Test]
+    [HandlerFunctions('HandleDownloadConfirm')]
     procedure "Http.Patch.VerifyResponse"()
     var
         Downloader: Codeunit HttpDownloader;
@@ -70,10 +74,11 @@ codeunit 60139 HttpDownloadTest
         // [THEN] VerifyResponse 
         Json.AsObject().Get('url', Json);
         if Json.AsValue().AsText() <> Url then
-            error('Unable to verify Get response');
+            error('Unable to verify Patch response');
     end;
 
     [Test]
+    [HandlerFunctions('HandleDownloadConfirm')]
     procedure "Http.Put.VerifyResponse"()
     var
         Downloader: Codeunit HttpDownloader;
@@ -87,15 +92,16 @@ codeunit 60139 HttpDownloadTest
         // [THEN] VerifyResponse 
         Json.AsObject().Get('url', Json);
         if Json.AsValue().AsText() <> Url then
-            error('Unable to verify Get response');
+            error('Unable to verify Put response');
     end;
 
     [Test]
+    [HandlerFunctions('HandleDownloadConfirm')]
     procedure "Http.Post.VerifyResponse"()
     var
         Downloader: Codeunit HttpDownloader;
         RequestContent: Codeunit RequestContentEdit;
-        RequestHeader: Codeunit RequestHeaderEdit;
+        RequestHeader: Codeunit RequestContentHeaderEdit;
         Json: JsonToken;
         Url: Text;
     begin
@@ -103,7 +109,7 @@ codeunit 60139 HttpDownloadTest
         Url := 'https://httpbin.org/post';
         // [WHEN] Get 
         BindSubscription(RequestHeader);
-        RequestHeader.AddHeader('Content-Type', 'text/html charset=utf-8');
+        RequestHeader.AddHeader('Content-Type', 'text/html; charset=utf-8');
         BindSubscription(RequestContent);
         RequestContent.AddContent('<html>Test</html>');
         Json := Downloader.DownloadJson(Url, 'post');
@@ -112,10 +118,37 @@ codeunit 60139 HttpDownloadTest
         // [THEN] VerifyResponse 
         Json.AsObject().Get('url', Json);
         if Json.AsValue().AsText() <> Url then
-            error('Unable to verify Get response');
+            error('Unable to verify Post response');
     end;
 
     [Test]
+    [HandlerFunctions('HandleDownloadConfirm')]
+    procedure "Http.Post.VerifyDataResponse"()
+    var
+        Downloader: Codeunit HttpDownloader;
+        RequestContent: Codeunit RequestContentEdit;
+        RequestHeader: Codeunit RequestContentHeaderEdit;
+        Json: JsonToken;
+        Url: Text;
+    begin
+        // [GIVEN] Http
+        Url := 'https://httpbin.org/post';
+        // [WHEN] Get 
+        BindSubscription(RequestHeader);
+        RequestHeader.AddHeader('Content-Type', 'text/html; charset=utf-8');
+        BindSubscription(RequestContent);
+        RequestContent.AddContent('<html>Test</html>');
+        Json := Downloader.DownloadJson(Url, 'post');
+        UnbindSubscription(RequestHeader);
+        UnbindSubscription(RequestContent);
+        // [THEN] VerifyResponse 
+        Json.AsObject().Get('data', Json);
+        if Json.AsValue().AsText() <> '<html>Test</html>' then
+            error('Unable to verify Post data response');
+    end;
+
+    [Test]
+    [HandlerFunctions('HandleDownloadConfirm')]
     procedure "Http.GetWithBasicAuthentication.VerifyResponse"()
     var
         Downloader: Codeunit HttpDownloader;
@@ -135,12 +168,13 @@ codeunit 60139 HttpDownloadTest
         Json := Downloader.DownloadJson(StrSubstNo(Url, UserName, Password));
         UnbindSubscription(BasicAuth);
         // [THEN] VerifyResponse 
-        Json.AsObject().Get('url', Json);
-        if Json.AsValue().AsText() <> Url then
-            error('Unable to verify Get response');
+        Json.AsObject().Get('authenticated', Json);
+        if not Json.AsValue().AsBoolean() then
+            error('Unable to verify basic authentication response');
     end;
 
     [Test]
+    [HandlerFunctions('HandleDownloadConfirm')]
     procedure "Http.GetWithHiddenBasicAuthentication.VerifyResponse"()
     var
         Downloader: Codeunit HttpDownloader;
@@ -160,9 +194,99 @@ codeunit 60139 HttpDownloadTest
         Json := Downloader.DownloadJson(StrSubstNo(Url, UserName, Password));
         UnbindSubscription(BasicAuth);
         // [THEN] VerifyResponse 
-        Json.AsObject().Get('url', Json);
-        if Json.AsValue().AsText() <> Url then
-            error('Unable to verify Get response');
+        Json.AsObject().Get('authenticated', Json);
+        if not Json.AsValue().AsBoolean() then
+            error('Unable to verify basic authentication response');
+    end;
+
+
+    [Test]
+    [HandlerFunctions('HandleDownloadConfirm')]
+    procedure "Http.GetWithBearerAuthentication.VerifyResponse"()
+    var
+        Downloader: Codeunit HttpDownloader;
+        BearerAuth: Codeunit RequestBearerAuthentication;
+        Json: JsonToken;
+        Url: Text;
+        Token: Text;
+    begin
+        // [GIVEN] Http
+        Token := GetRandomString(32);
+        Url := 'https://httpbin.org/bearer';
+        // [WHEN] Get 
+        BindSubscription(BearerAuth);
+        BearerAuth.SetToken(Token);
+        Json := Downloader.DownloadJson(Url);
+        UnbindSubscription(BearerAuth);
+        // [THEN] VerifyResponse 
+        Json.AsObject().Get('authenticated', Json);
+        if not Json.AsValue().AsBoolean() then
+            error('Unable to verify bearer authentication response');
+    end;
+
+    [Test]
+    [HandlerFunctions('HandleDownloadConfirm')]
+    procedure "Http.GetWithDigestAuthentication.VerifyResponse"()
+    var
+        Downloader: Codeunit HttpDownloader;
+        DigestAuth: Codeunit RequestDigestAuthentication;
+        Json: JsonToken;
+        Url: Text;
+        UserName: Text;
+        Password: Text;
+    begin
+        // [GIVEN] Http
+        UserName := GetRandomString(15);
+        Password := GetRandomString(16);
+        Url := 'https://httpbin.org/digest-auth/auth/%1/%2';
+        // [WHEN] Get 
+        DigestAuth.SetAuthentication(UserName, Password);
+        DigestAuth.GetWWWAuthenticate(StrSubstNo(Url, UserName, Password));
+
+        BindSubscription(DigestAuth);
+
+        Json := Downloader.DownloadJson(StrSubstNo(Url, UserName, Password));
+        UnbindSubscription(DigestAuth);
+        // [THEN] VerifyResponse 
+        Json.AsObject().Get('authenticated', Json);
+        if not Json.AsValue().AsBoolean() then
+            error('Unable to verify basic authentication response');
+    end;
+
+    [Test]
+    [HandlerFunctions('HandleDownloadConfirm')]
+    procedure "Http.RequestHeaders.VerifyResponse"()
+    var
+        Downloader: Codeunit HttpDownloader;
+        RequestHeader: Codeunit RequestHeaderEdit;
+        Json: JsonToken;
+        Url: Text;
+        HeaderName: Text;
+        HeaderValue: Text;
+    begin
+        // [GIVEN] Http
+        Url := 'https://postman-echo.com/headers';
+        HeaderName := GetRandomString(10);
+        HeaderValue := GetRandomString(20);
+        // [WHEN] Get 
+        RequestHeader.AddHeader(HeaderName, HeaderValue);
+        BindSubscription(RequestHeader);
+        Json := Downloader.DownloadJson(Url);
+        UnbindSubscription(RequestHeader);
+        // [THEN] VerifyResponse 
+        Json.AsObject().Get('headers', Json);
+        Json.AsObject().Get(HeaderName, Json);
+        if Json.AsValue().AsText() <> HeaderValue then
+            error('Unable to verify Request Heqader');
+    end;
+
+
+    [StrMenuHandler]
+    procedure HandleDownloadConfirm(Options: Text[1024]; var Choice: Integer; Instructions: Text[1024])
+    var
+        ResponseChoice: Option "","Allow Always","Allow Once","Block Always","Block Once";
+    begin
+        Choice := ResponseChoice::"Allow Once";
     end;
 
     local procedure GetRandomString(Length: Integer) RandomString: Text
