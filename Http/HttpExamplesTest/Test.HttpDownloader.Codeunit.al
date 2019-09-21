@@ -1,4 +1,4 @@
-codeunit 60139 HttpDownloadTest
+codeunit 60149 HttpDownloadTest
 {
     Subtype = Test;
 
@@ -8,7 +8,7 @@ codeunit 60139 HttpDownloadTest
     var
         Downloader: Codeunit HttpDownloader;
         ResponseHeaderEdit: Codeunit ResponseHeaderEdit;
-        XmlDoc: XmlDocument;
+        XmlDoc: Text;
         Url: Text;
     begin
         // [GIVEN] DownloadIcelandicPostCode 
@@ -16,7 +16,7 @@ codeunit 60139 HttpDownloadTest
         // [WHEN] SetUpdatedResponseHeader 
         ResponseHeaderEdit.AddHeader('Content-Type', 'text/xml; charset=iso-8859-1');
         BindSubscription(ResponseHeaderEdit);
-        XmlDoc := Downloader.DownloadXml(Url);
+        XmlDoc := Downloader.DownloadText(Url);
         UnbindSubscription(ResponseHeaderEdit);
         // [THEN] VerifyContentUpdated 
         //XmlDoc.SelectNodes()
@@ -310,6 +310,46 @@ codeunit 60139 HttpDownloadTest
             error('Unable to verify digest authentication response');
     end;
 
+    [Test]
+    [HandlerFunctions('HandleDownloadConfirm')]
+    procedure "AzureBlob.DownloadImageIntoStream.VerifyStreamContent"()
+    var
+        TempBlob: Record TempBlob;
+        Downloader: Codeunit HttpDownloader;
+        DotNetMemoryStream: Codeunit DotNet_MemoryStream;
+        DotNetArray: Codeunit DotNet_Array;
+        ResponseStream: InStream;
+        Url: Text;
+    begin
+        // [GIVEN] AzureBlob 
+        Url := 'https://365links.blob.core.windows.net/azureblobdemo/ANNA_20190215_0003-thumb.png';
+        // [WHEN] DownloadImageIntoStream 
+        TempBlob.Blob.CreateInStream(ResponseStream);
+        Downloader.DownloadIntoStream(Url, ResponseStream);
+        // [THEN] VerifyStreamContent
+        DotNetMemoryStream.InitMemoryStream();
+        DotNetMemoryStream.CopyFromInStream(ResponseStream);
+        DotNetMemoryStream.ToArray(DotNetArray);
+        if DotNetArray.Length() <> 114074 then
+            error('Unable to verify the image size');
+    end;
+
+    [Test]
+    [HandlerFunctions('HandleDownloadConfirm')]
+    procedure "AzureBlob.DownloadImageIntoTempBlob.VerifyBlobContent"()
+    var
+        TempBlob: Record TempBlob;
+        Downloader: Codeunit HttpDownloader;
+        Url: Text;
+    begin
+        // [GIVEN] AzureBlob 
+        Url := 'https://365links.blob.core.windows.net/azureblobdemo/ANNA_20190215_0003-thumb.png';
+        // [WHEN] DownloadImageIntoStream 
+        Downloader.DownloadIntoBlob(Url, TempBlob);
+        // [THEN] VerifyStreamContentntent
+        if TempBlob.Blob.Length <> 114074 then
+            error('Unable to verify the image size');
+    end;
 
     [StrMenuHandler]
     procedure HandleDownloadConfirm(Options: Text[1024]; var Choice: Integer; Instructions: Text[1024])
