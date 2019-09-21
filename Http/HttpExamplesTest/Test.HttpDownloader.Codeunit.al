@@ -4,27 +4,6 @@ codeunit 60149 HttpDownloadTest
 
     [Test]
     [HandlerFunctions('HandleDownloadConfirm')]
-    procedure "DownloadIcelandicPostCode.SetUpdatedResponseHeader.VerifyContentUpdated"()
-    var
-        Downloader: Codeunit HttpDownloader;
-        ResponseHeaderEdit: Codeunit ResponseHeaderEdit;
-        XmlDoc: Text;
-        Url: Text;
-    begin
-        // [GIVEN] DownloadIcelandicPostCode 
-        Url := 'http://www.postur.is/gogn/gotuskra/postnumer.xml';
-        // [WHEN] SetUpdatedResponseHeader 
-        ResponseHeaderEdit.AddHeader('Content-Type', 'text/xml; charset=iso-8859-1');
-        BindSubscription(ResponseHeaderEdit);
-        XmlDoc := Downloader.DownloadText(Url);
-        UnbindSubscription(ResponseHeaderEdit);
-        // [THEN] VerifyContentUpdated 
-        //XmlDoc.SelectNodes()
-
-    end;
-
-    [Test]
-    [HandlerFunctions('HandleDownloadConfirm')]
     procedure "Http.Get.VerifyResponse"()
     var
         Downloader: Codeunit HttpDownloader;
@@ -308,6 +287,28 @@ codeunit 60149 HttpDownloadTest
         Json.AsObject().Get('authenticated', Json);
         if not Json.AsValue().AsBoolean() then
             error('Unable to verify digest authentication response');
+    end;
+
+    [Test]
+    [HandlerFunctions('HandleDownloadConfirm')]
+    procedure "DownloadIcelandicPostCode.SetUpdatedResponseHeader.VerifyContentUpdated"()
+    var
+        Downloader: Codeunit HttpDownloader;
+        ResponseHeaderEdit: Codeunit ResponseHeaderEdit;
+        XmlDoc: Text;
+        Url: Text;
+    begin
+        // [GIVEN] DownloadIcelandicPostCode 
+        Url := 'http://www.postur.is/gogn/gotuskra/postnumer.xml';
+        // [WHEN] SetUpdatedResponseHeader 
+        ResponseHeaderEdit.AddHeader('Content-Type', 'text/xml; charset=iso-8859-1');
+        BindSubscription(ResponseHeaderEdit);
+        XmlDoc := Downloader.DownloadText(Url);
+        UnbindSubscription(ResponseHeaderEdit);
+        // [THEN] VerifyContentUpdated 
+        if StrPos(XmlDoc, 'Íslandspóstur Hf. - Póstnúmeraskrá') = 0 then
+            error('Unable to verify updated codepage for response stream');
+
     end;
 
     [Test]
