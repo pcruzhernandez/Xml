@@ -88,7 +88,7 @@ codeunit 60137 RequestDigestAuthentication
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::HttpDownloader, 'OnBeforeSendRequest', '', false, false)]
-    local procedure SetWindowsAuthentication(var RequestMessage: HttpRequestMessage)
+    local procedure SetDigestAuthentication(var RequestMessage: HttpRequestMessage)
     var
         Headers: HttpHeaders;
         Dir: Text;

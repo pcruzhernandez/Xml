@@ -23,7 +23,7 @@ codeunit 60134 RequestBasicAuthentication
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::HttpDownloader, 'OnBeforeSendRequest', '', false, false)]
-    local procedure SetWindowsAuthentication(var RequestMessage: HttpRequestMessage)
+    local procedure SetBasicAuthentication(var RequestMessage: HttpRequestMessage)
     var
         Headers: HttpHeaders;
     begin

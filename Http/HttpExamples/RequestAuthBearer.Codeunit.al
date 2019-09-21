@@ -19,7 +19,7 @@ codeunit 60138 RequestBearerAuthentication
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::HttpDownloader, 'OnBeforeSendRequest', '', false, false)]
-    local procedure SetWindowsAuthentication(var RequestMessage: HttpRequestMessage)
+    local procedure SetBearerAuthentication(var RequestMessage: HttpRequestMessage)
     var
         Headers: HttpHeaders;
     begin

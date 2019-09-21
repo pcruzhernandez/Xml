@@ -9,7 +9,7 @@ codeunit 60139 RequestDefaultAuthentication
 
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::HttpDownloader, 'OnBeforeSendRequest', '', false, false)]
-    local procedure SetWindowsAuthentication(var Client: HttpClient)
+    local procedure SetDefaultAuthentication(var Client: HttpClient)
     begin
         // Only enable for internal extension
         Client.UseDefaultNetworkWindowsAuthentication();
