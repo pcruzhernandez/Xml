@@ -231,21 +231,21 @@ codeunit 60139 HttpDownloadTest
         Downloader: Codeunit HttpDownloader;
         DigestAuth: Codeunit RequestDigestAuthentication;
         Json: JsonToken;
-        Url: Text;
+        Dir: Text;
+        Host: Text;
         UserName: Text;
         Password: Text;
     begin
         // [GIVEN] Http
+        Host := 'https://httpbin.org';
         UserName := GetRandomString(15);
         Password := GetRandomString(16);
-        Url := 'https://httpbin.org/digest-auth/auth/%1/%2';
+        Dir := StrSubstNo('/digest-auth/auth/%1/%2', UserName, Password);
         // [WHEN] Get 
-        DigestAuth.SetAuthentication(UserName, Password);
-        DigestAuth.GetWWWAuthenticate(StrSubstNo(Url, UserName, Password));
-
+        DigestAuth.SetAuthentication(Host, UserName, Password);
+        DigestAuth.GetWWWAuthenticate(Host + Dir);
         BindSubscription(DigestAuth);
-
-        Json := Downloader.DownloadJson(StrSubstNo(Url, UserName, Password));
+        Json := Downloader.DownloadJson(Host + Dir);
         UnbindSubscription(DigestAuth);
         // [THEN] VerifyResponse 
         Json.AsObject().Get('authenticated', Json);
@@ -253,9 +253,10 @@ codeunit 60139 HttpDownloadTest
             error('Unable to verify basic authentication response');
     end;
 
+
     [Test]
     [HandlerFunctions('HandleDownloadConfirm')]
-    procedure "Http.RequestHeaders.VerifyResponse"()
+    procedure "Postman.RequestHeaders.VerifyResponse"()
     var
         Downloader: Codeunit HttpDownloader;
         RequestHeader: Codeunit RequestHeaderEdit;
@@ -266,7 +267,7 @@ codeunit 60139 HttpDownloadTest
     begin
         // [GIVEN] Http
         Url := 'https://postman-echo.com/headers';
-        HeaderName := GetRandomString(10);
+        HeaderName := LowerCase(GetRandomString(10));
         HeaderValue := GetRandomString(20);
         // [WHEN] Get 
         RequestHeader.AddHeader(HeaderName, HeaderValue);
@@ -278,6 +279,35 @@ codeunit 60139 HttpDownloadTest
         Json.AsObject().Get(HeaderName, Json);
         if Json.AsValue().AsText() <> HeaderValue then
             error('Unable to verify Request Heqader');
+    end;
+
+    [Test]
+    [HandlerFunctions('HandleDownloadConfirm')]
+    procedure "Postman.GetWithDigestAuthentication.VerifyResponse"()
+    var
+        Downloader: Codeunit HttpDownloader;
+        DigestAuth: Codeunit RequestDigestAuthentication;
+        Json: JsonToken;
+        Dir: Text;
+        Host: Text;
+        UserName: Text;
+        Password: Text;
+    begin
+        // [GIVEN] Http
+        Host := 'https://postman-echo.com';
+        UserName := 'postman';
+        Password := 'password';
+        Dir := '/digest-auth';
+        // [WHEN] Get 
+        DigestAuth.SetAuthentication(Host, UserName, Password);
+        DigestAuth.GetWWWAuthenticate(Host + Dir);
+        BindSubscription(DigestAuth);
+        Json := Downloader.DownloadJson(StrSubstNo(Host + Dir, UserName, Password));
+        UnbindSubscription(DigestAuth);
+        // [THEN] VerifyResponse 
+        Json.AsObject().Get('authenticated', Json);
+        if not Json.AsValue().AsBoolean() then
+            error('Unable to verify digest authentication response');
     end;
 
 
