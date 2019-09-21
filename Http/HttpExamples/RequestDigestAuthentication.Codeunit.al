@@ -40,7 +40,7 @@ codeunit 60137 RequestDigestAuthentication
         NOnceDateTime: DateTime;
         Response: Text;
     begin
-        if not Evaluate(HashAlgorithmType, GetDigestValue('algorithm')) then
+        if not Evaluate(HashAlgorithmType, DelChr(GetDigestValue('algorithm'), '=', '-')) then
             HashAlgorithmType := HashAlgorithmType::MD5;
         NC := PadStr('', 8, '9');
         COnce := GetRandomInteger(7);

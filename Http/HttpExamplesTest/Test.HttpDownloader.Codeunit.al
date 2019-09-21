@@ -232,7 +232,6 @@ codeunit 60149 HttpDownloadTest
             error('Unable to verify basic authentication response');
     end;
 
-
     [Test]
     [HandlerFunctions('HandleDownloadConfirm')]
     procedure "Postman.RequestHeaders.VerifyResponse"()
