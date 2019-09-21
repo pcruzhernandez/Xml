@@ -87,9 +87,9 @@ codeunit 60130 HttpDownloader
 
     local procedure CreateResponseStream(ResponseStream: InStream)
     var
-        DataExch: Record "Data Exch.";
+        TempBlob: Record TempBlob;
     begin
-        DataExch."File Content".CreateInStream(ResponseStream);
+        TempBLob.Blob.CreateInStream(ResponseStream);
     end;
 
     local procedure SendRequest(Url: text; Method: Text; var Response: HttpResponseMessage)
