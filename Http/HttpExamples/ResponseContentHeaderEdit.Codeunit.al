@@ -1,4 +1,4 @@
-codeunit 60131 ResponseHeaderEdit
+codeunit 60131 ResponseContentHeaderEdit
 {
     EventSubscriberInstance = Manual;
 

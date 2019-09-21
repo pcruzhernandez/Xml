@@ -293,17 +293,17 @@ codeunit 60149 HttpDownloadTest
     procedure "DownloadIcelandicPostCode.SetUpdatedResponseHeader.VerifyContentUpdated"()
     var
         Downloader: Codeunit HttpDownloader;
-        ResponseHeaderEdit: Codeunit ResponseHeaderEdit;
+        ResponseContentHeaderEdit: Codeunit ResponseContentHeaderEdit;
         XmlDoc: Text;
         Url: Text;
     begin
         // [GIVEN] DownloadIcelandicPostCode 
         Url := 'http://www.postur.is/gogn/gotuskra/postnumer.xml';
         // [WHEN] SetUpdatedResponseHeader 
-        ResponseHeaderEdit.AddHeader('Content-Type', 'text/xml; charset=iso-8859-1');
-        BindSubscription(ResponseHeaderEdit);
+        ResponseContentHeaderEdit.AddHeader('Content-Type', 'text/xml; charset=iso-8859-1');
+        BindSubscription(ResponseContentHeaderEdit);
         XmlDoc := Downloader.DownloadText(Url);
-        UnbindSubscription(ResponseHeaderEdit);
+        UnbindSubscription(ResponseContentHeaderEdit);
         // [THEN] VerifyContentUpdated 
         if StrPos(XmlDoc, 'Íslandspóstur Hf. - Póstnúmeraskrá') = 0 then
             error('Unable to verify updated codepage for response stream');
