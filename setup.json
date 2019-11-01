@@ -1,6 +1,6 @@
 ﻿{
     "branchId":  "4539595f-1397-4633-9228-c038035a141d",
-    "dockerImage":  "mcr.microsoft.com/businesscentral/sandbox",
+    "dockerImage":  "mcr.microsoft.com/businesscentral/onprem:1904",
     "dockerShared": true,
     "navVersion":  "14.0.0.0",
     "navSolution":  "W1",
